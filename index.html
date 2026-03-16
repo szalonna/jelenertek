@@ -71,7 +71,8 @@
       font-size: 0.95rem;
     }
 
-    input {
+    input,
+    select {
       width: 100%;
       padding: 0.55rem 0.65rem;
       border-radius: 10px;
@@ -121,6 +122,19 @@
     <form id="calculator">
       <div class="grid">
         <div>
+          <label for="currency">Currency</label>
+          <select id="currency" required>
+            <option value="EUR" selected>EUR (€)</option>
+            <option value="USD">USD ($)</option>
+            <option value="HUF">HUF (Ft)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="JPY">JPY (¥)</option>
+            <option value="CHF">CHF</option>
+            <option value="CAD">CAD</option>
+            <option value="AUD">AUD</option>
+          </select>
+        </div>
+        <div>
           <label for="currentWage">Current monthly wage</label>
           <input id="currentWage" type="number" min="0" step="0.01" value="3000" required />
         </div>
@@ -155,18 +169,27 @@
 
   <script>
     const form = document.getElementById('calculator');
+    const currencyEl = document.getElementById('currency');
     const presentValueEl = document.getElementById('presentValue');
     const monthlyWagesEl = document.getElementById('monthlyWages');
     const futureWageEl = document.getElementById('futureWage');
     const futureMonthlyWagesEl = document.getElementById('futureMonthlyWages');
     const explanationEl = document.getElementById('explanation');
 
-    const money = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 });
     const number = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+
+    function moneyFormatter(currency) {
+      return new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency,
+        maximumFractionDigits: currency === 'HUF' || currency === 'JPY' ? 0 : 2,
+      });
+    }
 
     function calculate(event) {
       event.preventDefault();
 
+      const currency = currencyEl.value;
       const currentWage = Number(document.getElementById('currentWage').value);
       const inflation = Number(document.getElementById('inflation').value) / 100;
       const wageIncrease = Number(document.getElementById('wageIncrease').value) / 100;
@@ -186,16 +209,18 @@
       const equivalentCurrentMonthlyWages = presentValue / currentWage;
       const futureMonthlyWage = currentWage * wageGrowthFactor;
       const equivalentFutureMonthlyWages = futurePayment / futureMonthlyWage;
+      const money = moneyFormatter(currency);
 
       presentValueEl.textContent = money.format(presentValue);
       monthlyWagesEl.textContent = number.format(equivalentCurrentMonthlyWages);
       futureWageEl.textContent = money.format(futureMonthlyWage);
       futureMonthlyWagesEl.textContent = number.format(equivalentFutureMonthlyWages);
 
-      explanationEl.textContent = `The present value discounts the future payment by inflation over ${monthsAhead} months. Monthly-wage equivalents compare this value against your current and projected wages.`;
+      explanationEl.textContent = `The present value discounts the future payment by inflation over ${monthsAhead} months. Monthly-wage equivalents compare this value against your current and projected wages in ${currency}.`;
     }
 
     form.addEventListener('submit', calculate);
+    currencyEl.addEventListener('change', () => form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true })));
     form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
   </script>
 </body>
