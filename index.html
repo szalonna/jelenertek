@@ -314,13 +314,24 @@
     currencyEl.addEventListener('change', () => form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true })));
 
     inflationEl.addEventListener('input', () => syncPair(inflationEl, inflationRangeEl));
+    inflationEl.addEventListener('change', () => syncPair(inflationEl, inflationRangeEl));
     inflationRangeEl.addEventListener('input', () => syncPair(inflationRangeEl, inflationEl));
+    inflationRangeEl.addEventListener('change', () => syncPair(inflationRangeEl, inflationEl));
+
     wageIncreaseEl.addEventListener('input', () => syncPair(wageIncreaseEl, wageIncreaseRangeEl));
+    wageIncreaseEl.addEventListener('change', () => syncPair(wageIncreaseEl, wageIncreaseRangeEl));
     wageIncreaseRangeEl.addEventListener('input', () => syncPair(wageIncreaseRangeEl, wageIncreaseEl));
+    wageIncreaseRangeEl.addEventListener('change', () => syncPair(wageIncreaseRangeEl, wageIncreaseEl));
+
     futurePaymentRatioEl.addEventListener('input', () => syncPair(futurePaymentRatioEl, futurePaymentRatioRangeEl));
+    futurePaymentRatioEl.addEventListener('change', () => syncPair(futurePaymentRatioEl, futurePaymentRatioRangeEl));
     futurePaymentRatioRangeEl.addEventListener('input', () => syncPair(futurePaymentRatioRangeEl, futurePaymentRatioEl));
+    futurePaymentRatioRangeEl.addEventListener('change', () => syncPair(futurePaymentRatioRangeEl, futurePaymentRatioEl));
+
     monthsAheadEl.addEventListener('input', () => syncPair(monthsAheadEl, monthsAheadRangeEl));
+    monthsAheadEl.addEventListener('change', () => syncPair(monthsAheadEl, monthsAheadRangeEl));
     monthsAheadRangeEl.addEventListener('input', () => syncPair(monthsAheadRangeEl, monthsAheadEl));
+    monthsAheadRangeEl.addEventListener('change', () => syncPair(monthsAheadRangeEl, monthsAheadEl));
 
     bindFormattedInput(currentWageEl);
     bindFormattedInput(futurePaymentEl);
