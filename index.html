@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Future Payment Monthly Value Calculator</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #475569;
+      --primary: #2563eb;
+      --border: #cbd5e1;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --card: #111827;
+        --text: #e2e8f0;
+        --muted: #cbd5e1;
+        --primary: #60a5fa;
+        --border: #334155;
+      }
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
+    }
+
+    .card {
+      width: min(720px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+    }
+
+    p {
+      color: var(--muted);
+      margin-top: 0;
+    }
+
+    .grid {
+      display: grid;
+      gap: 0.9rem;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      margin: 1rem 0;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      font-size: 0.95rem;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+      box-sizing: border-box;
+      background: transparent;
+      color: inherit;
+    }
+
+    .field-inline {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .field-inline input[type="number"] {
+      width: 110px;
+    }
+
+    .range-wrap {
+      margin-top: 0.4rem;
+    }
+
+    input[type="range"] {
+      padding: 0;
+      border: 0;
+      accent-color: var(--primary);
+    }
+
+    button {
+      margin-top: 0.4rem;
+      background: var(--primary);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+    }
+
+    .results {
+      margin-top: 1rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .result-item strong {
+      font-size: 1.1rem;
+    }
+
+    .note {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Future Payment → Present Monthly Value</h1>
+    <p>Estimate what a one-time future payment is worth in today's monthly-wage terms.</p>
+
+    <form id="calculator">
+      <div class="grid">
+        <div>
+          <label for="currency">Currency</label>
+          <select id="currency" required>
+            <option value="EUR" selected>EUR (€)</option>
+            <option value="USD">USD ($)</option>
+            <option value="HUF">HUF (Ft)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="JPY">JPY (¥)</option>
+            <option value="CHF">CHF</option>
+            <option value="CAD">CAD</option>
+            <option value="AUD">AUD</option>
+          </select>
+        </div>
+        <div>
+          <label for="currentWage">Current monthly wage</label>
+          <input id="currentWage" type="number" min="0" step="0.01" value="3000" required />
+        </div>
+        <div>
+          <label for="inflation">Expected inflation (% per year)</label>
+          <div class="field-inline">
+            <input id="inflation" type="number" min="0" max="25" step="0.1" value="3" required />
+            <span>%</span>
+          </div>
+          <div class="range-wrap">
+            <input id="inflationRange" type="range" min="0" max="25" step="0.1" value="3" />
+          </div>
+        </div>
+        <div>
+          <label for="wageIncrease">Expected wage increase (% per year)</label>
+          <div class="field-inline">
+            <input id="wageIncrease" type="number" min="0" max="25" step="0.1" value="5" required />
+            <span>%</span>
+          </div>
+          <div class="range-wrap">
+            <input id="wageIncreaseRange" type="range" min="0" max="25" step="0.1" value="5" />
+          </div>
+        </div>
+        <div>
+          <label for="futurePayment">Future single payment amount</label>
+          <input id="futurePayment" type="number" min="0" step="0.01" value="12000" required />
+        </div>
+        <div>
+          <label for="monthsAhead">Distance in the future (months)</label>
+          <div class="field-inline">
+            <input id="monthsAhead" type="number" min="0" max="84" step="1" value="24" required />
+            <span>months</span>
+          </div>
+          <div class="range-wrap">
+            <input id="monthsAheadRange" type="range" min="0" max="84" step="1" value="24" />
+          </div>
+        </div>
+      </div>
+      <button type="submit">Calculate</button>
+    </form>
+
+    <section class="results" id="results" aria-live="polite">
+      <div class="result-item"><strong>Present value today:</strong> <span id="presentValue">—</span></div>
+      <div class="result-item"><strong>Equivalent current monthly wages:</strong> <span id="monthlyWages">—</span></div>
+      <div class="result-item"><strong>Estimated monthly wage at payout date:</strong> <span id="futureWage">—</span></div>
+      <div class="result-item"><strong>Equivalent future monthly wages:</strong> <span id="futureMonthlyWages">—</span></div>
+      <p class="note" id="explanation"></p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('calculator');
+    const currencyEl = document.getElementById('currency');
+    const inflationEl = document.getElementById('inflation');
+    const inflationRangeEl = document.getElementById('inflationRange');
+    const wageIncreaseEl = document.getElementById('wageIncrease');
+    const wageIncreaseRangeEl = document.getElementById('wageIncreaseRange');
+    const monthsAheadEl = document.getElementById('monthsAhead');
+    const monthsAheadRangeEl = document.getElementById('monthsAheadRange');
+    const presentValueEl = document.getElementById('presentValue');
+    const monthlyWagesEl = document.getElementById('monthlyWages');
+    const futureWageEl = document.getElementById('futureWage');
+    const futureMonthlyWagesEl = document.getElementById('futureMonthlyWages');
+    const explanationEl = document.getElementById('explanation');
+
+    const number = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+
+    function moneyFormatter(currency) {
+      return new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency,
+        maximumFractionDigits: currency === 'HUF' || currency === 'JPY' ? 0 : 2,
+      });
+    }
+
+    function calculate(event) {
+      event.preventDefault();
+
+      const currency = currencyEl.value;
+      const currentWage = Number(document.getElementById('currentWage').value);
+      const inflation = Number(inflationEl.value) / 100;
+      const wageIncrease = Number(wageIncreaseEl.value) / 100;
+      const futurePayment = Number(document.getElementById('futurePayment').value);
+      const monthsAhead = Number(monthsAheadEl.value);
+
+      if ([currentWage, inflation, wageIncrease, futurePayment, monthsAhead].some((v) => Number.isNaN(v)) || currentWage <= 0 || futurePayment < 0 || monthsAhead < 0) {
+        explanationEl.textContent = 'Please enter valid positive numbers.';
+        return;
+      }
+
+      const years = monthsAhead / 12;
+      const inflationFactor = Math.pow(1 + inflation, years);
+      const wageGrowthFactor = Math.pow(1 + wageIncrease, years);
+
+      const presentValue = futurePayment / inflationFactor;
+      const equivalentCurrentMonthlyWages = presentValue / currentWage;
+      const futureMonthlyWage = currentWage * wageGrowthFactor;
+      const equivalentFutureMonthlyWages = futurePayment / futureMonthlyWage;
+      const money = moneyFormatter(currency);
+
+      presentValueEl.textContent = money.format(presentValue);
+      monthlyWagesEl.textContent = number.format(equivalentCurrentMonthlyWages);
+      futureWageEl.textContent = money.format(futureMonthlyWage);
+      futureMonthlyWagesEl.textContent = number.format(equivalentFutureMonthlyWages);
+
+      explanationEl.textContent = `The present value discounts the future payment by inflation over ${monthsAhead} months. Monthly-wage equivalents compare this value against your current and projected wages in ${currency}.`;
+    }
+
+    function syncPair(source, target) {
+      target.value = source.value;
+      form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    }
+
+    form.addEventListener('submit', calculate);
+    currencyEl.addEventListener('change', () => form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true })));
+
+    inflationEl.addEventListener('input', () => syncPair(inflationEl, inflationRangeEl));
+    inflationRangeEl.addEventListener('input', () => syncPair(inflationRangeEl, inflationEl));
+    wageIncreaseEl.addEventListener('input', () => syncPair(wageIncreaseEl, wageIncreaseRangeEl));
+    wageIncreaseRangeEl.addEventListener('input', () => syncPair(wageIncreaseRangeEl, wageIncreaseEl));
+    monthsAheadEl.addEventListener('input', () => syncPair(monthsAheadEl, monthsAheadRangeEl));
+    monthsAheadRangeEl.addEventListener('input', () => syncPair(monthsAheadRangeEl, monthsAheadEl));
+
+    form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+  </script>
+</body>
+</html>
