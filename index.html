@@ -157,7 +157,7 @@
         </div>
         <div>
           <label for="currentWage">Current monthly wage</label>
-          <input id="currentWage" type="number" min="0" step="0.01" value="3000" required />
+          <input id="currentWage" type="text" inputmode="decimal" value="3000" required />
         </div>
         <div>
           <label for="inflation">Expected inflation (% per year)</label>
@@ -181,7 +181,7 @@
         </div>
         <div>
           <label for="futurePayment">Future single payment amount</label>
-          <input id="futurePayment" type="number" min="0" step="0.01" value="12000" required />
+          <input id="futurePayment" type="text" inputmode="decimal" value="12000" required />
         </div>
         <div>
           <label for="monthsAhead">Distance in the future (months)</label>
@@ -209,12 +209,14 @@
   <script>
     const form = document.getElementById('calculator');
     const currencyEl = document.getElementById('currency');
+    const currentWageEl = document.getElementById('currentWage');
     const inflationEl = document.getElementById('inflation');
     const inflationRangeEl = document.getElementById('inflationRange');
     const wageIncreaseEl = document.getElementById('wageIncrease');
     const wageIncreaseRangeEl = document.getElementById('wageIncreaseRange');
     const monthsAheadEl = document.getElementById('monthsAhead');
     const monthsAheadRangeEl = document.getElementById('monthsAheadRange');
+    const futurePaymentEl = document.getElementById('futurePayment');
     const presentValueEl = document.getElementById('presentValue');
     const monthlyWagesEl = document.getElementById('monthlyWages');
     const futureWageEl = document.getElementById('futureWage');
@@ -231,14 +233,39 @@
       });
     }
 
+    function parseFormattedNumber(value) {
+      return Number(value.replace(/\s+/g, '').replace(',', '.'));
+    }
+
+    function formatWithSpaces(value) {
+      const normalized = value.replace(/\s+/g, '').replace(',', '.');
+      if (!normalized) return '';
+
+      const [rawIntegerPart, decimalPart] = normalized.split('.');
+      const integerPart = rawIntegerPart.replace(/^0+(\d)/, '$1') || '0';
+      const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      return decimalPart === undefined ? groupedInteger : `${groupedInteger}.${decimalPart}`;
+    }
+
+    function bindFormattedInput(inputEl) {
+      inputEl.value = formatWithSpaces(inputEl.value);
+      inputEl.addEventListener('input', () => {
+        inputEl.value = formatWithSpaces(inputEl.value);
+        form.requestSubmit();
+      });
+      inputEl.addEventListener('blur', () => {
+        inputEl.value = formatWithSpaces(inputEl.value);
+      });
+    }
+
     function calculate(event) {
       event.preventDefault();
 
       const currency = currencyEl.value;
-      const currentWage = Number(document.getElementById('currentWage').value);
+      const currentWage = parseFormattedNumber(currentWageEl.value);
       const inflation = Number(inflationEl.value) / 100;
       const wageIncrease = Number(wageIncreaseEl.value) / 100;
-      const futurePayment = Number(document.getElementById('futurePayment').value);
+      const futurePayment = parseFormattedNumber(futurePaymentEl.value);
       const monthsAhead = Number(monthsAheadEl.value);
 
       if ([currentWage, inflation, wageIncrease, futurePayment, monthsAhead].some((v) => Number.isNaN(v)) || currentWage <= 0 || futurePayment < 0 || monthsAhead < 0) {
@@ -278,6 +305,10 @@
     wageIncreaseRangeEl.addEventListener('input', () => syncPair(wageIncreaseRangeEl, wageIncreaseEl));
     monthsAheadEl.addEventListener('input', () => syncPair(monthsAheadEl, monthsAheadRangeEl));
     monthsAheadRangeEl.addEventListener('input', () => syncPair(monthsAheadRangeEl, monthsAheadEl));
+
+    bindFormattedInput(currentWageEl);
+    bindFormattedInput(futurePaymentEl);
+
 
     form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
   </script>
