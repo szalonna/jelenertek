@@ -184,6 +184,16 @@
           <input id="futurePayment" type="text" inputmode="decimal" value="12000" required />
         </div>
         <div>
+          <label for="futurePaymentRatio">Exit performance goal achievement (% of amount)</label>
+          <div class="field-inline">
+            <input id="futurePaymentRatio" type="number" min="0" max="300" step="1" value="100" required />
+            <span>%</span>
+          </div>
+          <div class="range-wrap">
+            <input id="futurePaymentRatioRange" type="range" min="0" max="300" step="1" value="100" />
+          </div>
+        </div>
+        <div>
           <label for="monthsAhead">Distance in the future (months)</label>
           <div class="field-inline">
             <input id="monthsAhead" type="number" min="0" max="84" step="1" value="24" required />
@@ -217,6 +227,8 @@
     const monthsAheadEl = document.getElementById('monthsAhead');
     const monthsAheadRangeEl = document.getElementById('monthsAheadRange');
     const futurePaymentEl = document.getElementById('futurePayment');
+    const futurePaymentRatioEl = document.getElementById('futurePaymentRatio');
+    const futurePaymentRatioRangeEl = document.getElementById('futurePaymentRatioRange');
     const presentValueEl = document.getElementById('presentValue');
     const monthlyWagesEl = document.getElementById('monthlyWages');
     const futureWageEl = document.getElementById('futureWage');
@@ -266,21 +278,23 @@
       const inflation = Number(inflationEl.value) / 100;
       const wageIncrease = Number(wageIncreaseEl.value) / 100;
       const futurePayment = parseFormattedNumber(futurePaymentEl.value);
+      const futurePaymentRatio = Number(futurePaymentRatioEl.value) / 100;
       const monthsAhead = Number(monthsAheadEl.value);
 
-      if ([currentWage, inflation, wageIncrease, futurePayment, monthsAhead].some((v) => Number.isNaN(v)) || currentWage <= 0 || futurePayment < 0 || monthsAhead < 0) {
+      if ([currentWage, inflation, wageIncrease, futurePayment, futurePaymentRatio, monthsAhead].some((v) => Number.isNaN(v)) || currentWage <= 0 || futurePayment < 0 || futurePaymentRatio < 0 || monthsAhead < 0) {
         explanationEl.textContent = 'Please enter valid positive numbers.';
         return;
       }
 
       const years = monthsAhead / 12;
+      const adjustedFuturePayment = futurePayment * futurePaymentRatio;
       const inflationFactor = Math.pow(1 + inflation, years);
       const wageGrowthFactor = Math.pow(1 + wageIncrease, years);
 
-      const presentValue = futurePayment / inflationFactor;
+      const presentValue = adjustedFuturePayment / inflationFactor;
       const equivalentCurrentMonthlyWages = presentValue / currentWage;
       const futureMonthlyWage = currentWage * wageGrowthFactor;
-      const equivalentFutureMonthlyWages = futurePayment / futureMonthlyWage;
+      const equivalentFutureMonthlyWages = adjustedFuturePayment / futureMonthlyWage;
       const money = moneyFormatter(currency);
 
       presentValueEl.textContent = money.format(presentValue);
@@ -288,7 +302,7 @@
       futureWageEl.textContent = money.format(futureMonthlyWage);
       futureMonthlyWagesEl.textContent = number.format(equivalentFutureMonthlyWages);
 
-      explanationEl.textContent = `The present value discounts the future payment by inflation over ${monthsAhead} months. Monthly-wage equivalents compare this value against your current and projected wages in ${currency}.`;
+      explanationEl.textContent = `The calculation applies a ${number.format(futurePaymentRatio * 100)}% exit performance goal achievement factor to the future payment before discounting by inflation over ${monthsAhead} months. Monthly-wage equivalents compare this value against your current and projected wages in ${currency}.`;
     }
 
     function syncPair(source, target) {
@@ -303,6 +317,8 @@
     inflationRangeEl.addEventListener('input', () => syncPair(inflationRangeEl, inflationEl));
     wageIncreaseEl.addEventListener('input', () => syncPair(wageIncreaseEl, wageIncreaseRangeEl));
     wageIncreaseRangeEl.addEventListener('input', () => syncPair(wageIncreaseRangeEl, wageIncreaseEl));
+    futurePaymentRatioEl.addEventListener('input', () => syncPair(futurePaymentRatioEl, futurePaymentRatioRangeEl));
+    futurePaymentRatioRangeEl.addEventListener('input', () => syncPair(futurePaymentRatioRangeEl, futurePaymentRatioEl));
     monthsAheadEl.addEventListener('input', () => syncPair(monthsAheadEl, monthsAheadRangeEl));
     monthsAheadRangeEl.addEventListener('input', () => syncPair(monthsAheadRangeEl, monthsAheadEl));
 
