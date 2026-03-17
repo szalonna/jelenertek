@@ -237,6 +237,8 @@
       <div class="result-item"><strong>Estimated monthly wage at payout date:</strong> <span id="futureWage">—</span></div>
       <div class="result-item"><strong>Future wage in today's value (inflation-adjusted):</strong> <span id="futureWagePresentValue">—</span></div>
       <div class="result-item"><strong>Equivalent future monthly wages:</strong> <span id="futureMonthlyWages">—</span></div>
+      <div class="result-item"><strong>Required immediate monthly raise (today):</strong> <span id="requiredRaise">—</span></div>
+      <div class="result-item"><strong>Required raise as % of current wage:</strong> <span id="requiredRaisePercent">—</span></div>
       <div class="result-item">
         <strong>Future wage by period:</strong>
         <div class="wage-table-wrap">
@@ -266,6 +268,8 @@
     const futureWageEl = document.getElementById('futureWage');
     const futureWagePresentValueEl = document.getElementById('futureWagePresentValue');
     const futureMonthlyWagesEl = document.getElementById('futureMonthlyWages');
+    const requiredRaiseEl = document.getElementById('requiredRaise');
+    const requiredRaisePercentEl = document.getElementById('requiredRaisePercent');
     const futureWageTableEl = document.getElementById('futureWageTable');
     const explanationEl = document.getElementById('explanation');
 
@@ -330,6 +334,13 @@
       const futureMonthlyWage = currentWage * wageGrowthFactor;
       const futureWagePresentValue = futureMonthlyWage / inflationFactor;
       const equivalentFutureMonthlyWages = adjustedFuturePayment / futureMonthlyWage;
+      const realMonthlyGrowthFactor = Math.pow((1 + wageIncrease) / (1 + inflation), 1 / 12);
+      const realRaiseFactorSum = Array.from({ length: monthsAhead }, (_, index) => Math.pow(realMonthlyGrowthFactor, index + 1))
+        .reduce((sum, value) => sum + value, 0);
+      const requiredRaise = monthsAhead === 0
+        ? presentValue
+        : presentValue / (realRaiseFactorSum || 1);
+      const requiredRaisePercent = (requiredRaise / currentWage) * 100;
       const money = moneyFormatter(currency);
 
       const periodMonths = [];
@@ -400,8 +411,10 @@
       futureWageEl.textContent = money.format(futureMonthlyWage);
       futureWagePresentValueEl.textContent = money.format(futureWagePresentValue);
       futureMonthlyWagesEl.textContent = number.format(equivalentFutureMonthlyWages);
+      requiredRaiseEl.textContent = money.format(requiredRaise);
+      requiredRaisePercentEl.textContent = `${number.format(requiredRaisePercent)}%`;
 
-      explanationEl.textContent = `The calculation applies a ${number.format(futurePaymentRatio * 100)}% exit performance goal achievement factor to the future payment before discounting by inflation over ${monthsAhead} months. Monthly-wage equivalents compare this value against your current and projected wages in ${currency}.`;
+      explanationEl.textContent = `The calculation applies a ${number.format(futurePaymentRatio * 100)}% exit performance goal achievement factor to the future payment before discounting by inflation over ${monthsAhead} months. The required raise estimates how much extra monthly pay you would need today so the inflation-adjusted value of that raise stream (including annual wage increases) matches the payout's present value.`;
     }
 
     function syncPair(source, target) {
