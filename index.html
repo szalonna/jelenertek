@@ -64,6 +64,38 @@
       margin: 1rem 0;
     }
 
+    .section-group {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: color-mix(in srgb, var(--card) 92%, var(--primary) 8%);
+    }
+
+    .section-title {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .input-groups {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .input-subgroup {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 0.75rem;
+      background: color-mix(in srgb, var(--card) 96%, var(--primary) 4%);
+    }
+
+    .input-subgroup h3 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
     label {
       display: block;
       font-weight: 600;
@@ -118,10 +150,21 @@
 
     .results {
       margin-top: 1rem;
-      border-top: 1px solid var(--border);
-      padding-top: 1rem;
       display: grid;
       gap: 0.6rem;
+    }
+
+    .results-grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    }
+
+    .result-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.7rem;
+      background: color-mix(in srgb, var(--card) 94%, var(--primary) 6%);
     }
 
     .result-item strong {
@@ -156,6 +199,24 @@
     th {
       background: color-mix(in srgb, var(--card) 84%, var(--primary) 16%);
     }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 0.75rem;
+      }
+
+      .card {
+        padding: 0.9rem;
+      }
+
+      .field-inline {
+        grid-template-columns: 1fr;
+      }
+
+      .field-inline input[type="number"] {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -164,81 +225,104 @@
     <p>Estimate what a one-time future payment is worth in today's monthly-wage terms.</p>
 
     <form id="calculator">
-      <div class="grid">
-        <div>
-          <label for="currency">Currency</label>
-          <select id="currency" required>
-            <option value="EUR" selected>EUR (€)</option>
-            <option value="USD">USD ($)</option>
-            <option value="HUF">HUF (Ft)</option>
-            <option value="GBP">GBP (£)</option>
-            <option value="JPY">JPY (¥)</option>
-            <option value="CHF">CHF</option>
-            <option value="CAD">CAD</option>
-            <option value="AUD">AUD</option>
-          </select>
+      <section class="section-group">
+        <h2 class="section-title">Inputs</h2>
+        <div class="input-groups">
+          <section class="input-subgroup">
+            <h3>Compensation baseline</h3>
+            <div class="grid">
+              <div>
+                <label for="currency">Currency</label>
+                <select id="currency" required>
+                  <option value="EUR" selected>EUR (€)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="HUF">HUF (Ft)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="JPY">JPY (¥)</option>
+                  <option value="CHF">CHF</option>
+                  <option value="CAD">CAD</option>
+                  <option value="AUD">AUD</option>
+                </select>
+              </div>
+              <div>
+                <label for="currentWage">Current monthly wage</label>
+                <input id="currentWage" type="text" inputmode="decimal" value="3000" required />
+              </div>
+            </div>
+          </section>
+
+          <section class="input-subgroup">
+            <h3>Growth assumptions</h3>
+            <div class="grid">
+              <div>
+                <label for="inflation">Expected inflation (% per year)</label>
+                <div class="field-inline">
+                  <input id="inflation" type="number" min="0" max="25" step="0.1" value="3" required />
+                  <span>%</span>
+                </div>
+                <div class="range-wrap">
+                  <input id="inflationRange" type="range" min="0" max="25" step="0.1" value="3" />
+                </div>
+              </div>
+              <div>
+                <label for="wageIncrease">Expected wage increase (% per year)</label>
+                <div class="field-inline">
+                  <input id="wageIncrease" type="number" min="0" max="25" step="0.1" value="5" required />
+                  <span>%</span>
+                </div>
+                <div class="range-wrap">
+                  <input id="wageIncreaseRange" type="range" min="0" max="25" step="0.1" value="5" />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="input-subgroup">
+            <h3>Payout scenario</h3>
+            <div class="grid">
+              <div>
+                <label for="futurePayment">Future single payment amount</label>
+                <input id="futurePayment" type="text" inputmode="decimal" value="12000" required />
+              </div>
+              <div>
+                <label for="futurePaymentRatio">Exit performance goal achievement (% of amount)</label>
+                <div class="field-inline">
+                  <input id="futurePaymentRatio" type="number" min="0" max="300" step="1" value="100" required />
+                  <span>%</span>
+                </div>
+                <div class="range-wrap">
+                  <input id="futurePaymentRatioRange" type="range" min="0" max="300" step="1" value="100" />
+                </div>
+              </div>
+              <div>
+                <label for="monthsAhead">Distance in the future (months)</label>
+                <div class="field-inline">
+                  <input id="monthsAhead" type="number" min="0" max="84" step="1" value="24" required />
+                  <span>months</span>
+                </div>
+                <div class="range-wrap">
+                  <input id="monthsAheadRange" type="range" min="0" max="84" step="1" value="24" />
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
-        <div>
-          <label for="currentWage">Current monthly wage</label>
-          <input id="currentWage" type="text" inputmode="decimal" value="3000" required />
-        </div>
-        <div>
-          <label for="inflation">Expected inflation (% per year)</label>
-          <div class="field-inline">
-            <input id="inflation" type="number" min="0" max="25" step="0.1" value="3" required />
-            <span>%</span>
-          </div>
-          <div class="range-wrap">
-            <input id="inflationRange" type="range" min="0" max="25" step="0.1" value="3" />
-          </div>
-        </div>
-        <div>
-          <label for="wageIncrease">Expected wage increase (% per year)</label>
-          <div class="field-inline">
-            <input id="wageIncrease" type="number" min="0" max="25" step="0.1" value="5" required />
-            <span>%</span>
-          </div>
-          <div class="range-wrap">
-            <input id="wageIncreaseRange" type="range" min="0" max="25" step="0.1" value="5" />
-          </div>
-        </div>
-        <div>
-          <label for="futurePayment">Future single payment amount</label>
-          <input id="futurePayment" type="text" inputmode="decimal" value="12000" required />
-        </div>
-        <div>
-          <label for="futurePaymentRatio">Exit performance goal achievement (% of amount)</label>
-          <div class="field-inline">
-            <input id="futurePaymentRatio" type="number" min="0" max="300" step="1" value="100" required />
-            <span>%</span>
-          </div>
-          <div class="range-wrap">
-            <input id="futurePaymentRatioRange" type="range" min="0" max="300" step="1" value="100" />
-          </div>
-        </div>
-        <div>
-          <label for="monthsAhead">Distance in the future (months)</label>
-          <div class="field-inline">
-            <input id="monthsAhead" type="number" min="0" max="84" step="1" value="24" required />
-            <span>months</span>
-          </div>
-          <div class="range-wrap">
-            <input id="monthsAheadRange" type="range" min="0" max="84" step="1" value="24" />
-          </div>
-        </div>
-      </div>
+      </section>
       <button type="submit">Calculate</button>
     </form>
 
-    <section class="results" id="results" aria-live="polite">
-      <div class="result-item"><strong>Current monthly wage:</strong> <span id="currentWageResult">—</span></div>
-      <div class="result-item"><strong>Present value today:</strong> <span id="presentValue">—</span></div>
-      <div class="result-item"><strong>Equivalent current monthly wages:</strong> <span id="monthlyWages">—</span></div>
-      <div class="result-item"><strong>Estimated monthly wage at payout date:</strong> <span id="futureWage">—</span></div>
-      <div class="result-item"><strong>Future wage in today's value (inflation-adjusted):</strong> <span id="futureWagePresentValue">—</span></div>
-      <div class="result-item"><strong>Equivalent future monthly wages:</strong> <span id="futureMonthlyWages">—</span></div>
-      <div class="result-item"><strong>Required immediate monthly raise (today):</strong> <span id="requiredRaise">—</span></div>
-      <div class="result-item"><strong>Required raise as % of current wage:</strong> <span id="requiredRaisePercent">—</span></div>
+    <section class="results section-group" id="results" aria-live="polite">
+      <h2 class="section-title">Results</h2>
+      <div class="results-grid">
+        <div class="result-item"><strong>Current monthly wage:</strong> <span id="currentWageResult">—</span></div>
+        <div class="result-item"><strong>Present value today:</strong> <span id="presentValue">—</span></div>
+        <div class="result-item"><strong>Equivalent current monthly wages:</strong> <span id="monthlyWages">—</span></div>
+        <div class="result-item"><strong>Estimated monthly wage at payout date:</strong> <span id="futureWage">—</span></div>
+        <div class="result-item"><strong>Future wage in today's value (inflation-adjusted):</strong> <span id="futureWagePresentValue">—</span></div>
+        <div class="result-item"><strong>Equivalent future monthly wages:</strong> <span id="futureMonthlyWages">—</span></div>
+        <div class="result-item"><strong>Required immediate monthly raise (today):</strong> <span id="requiredRaise">—</span></div>
+        <div class="result-item"><strong>Required raise as % of current wage:</strong> <span id="requiredRaisePercent">—</span></div>
+      </div>
       <div class="result-item">
         <strong>Future wage by period:</strong>
         <div class="wage-table-wrap">
@@ -343,19 +427,17 @@
       const requiredRaisePercent = (requiredRaise / currentWage) * 100;
       const money = moneyFormatter(currency);
 
-      const periodMonths = [];
+      const periodMonths = [0];
       for (let month = 12; month <= monthsAhead; month += 12) {
         periodMonths.push(month);
       }
       const leftoverMonths = monthsAhead % 12;
-      if (monthsAhead === 0) {
-        periodMonths.push(0);
-      } else if (leftoverMonths !== 0) {
+      if (monthsAhead !== 0 && leftoverMonths !== 0) {
         periodMonths.push(monthsAhead);
       }
 
       const tableHeaderCells = periodMonths
-        .map((month) => `<th scope="col">${month} mo</th>`)
+        .map((month) => `<th scope="col">${month === 0 ? 'Now' : `${month} mo`}</th>`)
         .join('');
       const futureWageCells = periodMonths
         .map((month) => {
