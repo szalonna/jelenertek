@@ -6,29 +6,75 @@
   <title>Future Payment Monthly Value Calculator</title>
   <style>
     :root {
-      color-scheme: light dark;
       --bg: #f5f7fb;
       --card: #ffffff;
       --text: #1e293b;
       --muted: #475569;
       --primary: #2563eb;
       --border: #cbd5e1;
+      --surface-tint: color-mix(in srgb, var(--card) 92%, var(--primary) 8%);
+      --subsurface-tint: color-mix(in srgb, var(--card) 96%, var(--primary) 4%);
+      --table-head: color-mix(in srgb, var(--card) 84%, var(--primary) 16%);
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --radius-card: 14px;
+      --radius-panel: 12px;
+      --radius-input: 10px;
+      --button-text: #ffffff;
+      --font-main: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      --ascii-display: none;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0f172a;
-        --card: #111827;
-        --text: #e2e8f0;
-        --muted: #cbd5e1;
-        --primary: #60a5fa;
-        --border: #334155;
-      }
+    body[data-theme="corporate"] {
+      --bg: #f7f9fb;
+      --card: #ffffff;
+      --text: #2d3b45;
+      --muted: #516f90;
+      --primary: #0374b5;
+      --border: #d8dee4;
+      --surface-tint: #f4f7fa;
+      --subsurface-tint: #f9fbfd;
+      --table-head: #e9f3fb;
+    }
+
+    body[data-theme="win98"] {
+      --bg: #008080;
+      --card: #c0c0c0;
+      --text: #000000;
+      --muted: #1f1f1f;
+      --primary: #000080;
+      --border: #7a7a7a;
+      --surface-tint: #bdbdbd;
+      --subsurface-tint: #d9d9d9;
+      --table-head: #adadad;
+      --shadow: 3px 3px 0 #000;
+      --radius-card: 0;
+      --radius-panel: 0;
+      --radius-input: 0;
+      --button-text: #ffffff;
+      --font-main: "MS Sans Serif", "Tahoma", sans-serif;
+    }
+
+    body[data-theme="claude-cli"] {
+      --bg: #090b12;
+      --card: #0e1322;
+      --text: #d1ffe4;
+      --muted: #8acfab;
+      --primary: #57f287;
+      --border: #1e3a2b;
+      --surface-tint: #0d1920;
+      --subsurface-tint: #0b1620;
+      --table-head: #12281f;
+      --shadow: 0 0 0 1px #1e3a2b, 0 0 25px rgba(87, 242, 135, 0.12);
+      --radius-card: 6px;
+      --radius-panel: 4px;
+      --radius-input: 4px;
+      --font-main: "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+      --ascii-display: block;
     }
 
     body {
       margin: 0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-family: var(--font-main);
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -41,9 +87,34 @@
       width: min(720px, 100%);
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: var(--radius-card);
       padding: 1.25rem;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow);
+    }
+
+    .theme-bar {
+      display: grid;
+      grid-template-columns: 180px minmax(200px, 320px);
+      gap: 0.75rem;
+      align-items: end;
+      margin-bottom: 1rem;
+    }
+
+    .theme-bar label {
+      margin-bottom: 0.35rem;
+    }
+
+    .ascii-banner {
+      display: var(--ascii-display);
+      margin: 0 0 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-panel);
+      padding: 0.7rem;
+      background: var(--subsurface-tint);
+      color: var(--primary);
+      font-size: 0.72rem;
+      line-height: 1.15;
+      overflow-x: auto;
     }
 
     h1 {
@@ -66,10 +137,10 @@
 
     .section-group {
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius-panel);
       padding: 1rem;
       margin-bottom: 1rem;
-      background: color-mix(in srgb, var(--card) 92%, var(--primary) 8%);
+      background: var(--surface-tint);
     }
 
     .section-title {
@@ -86,9 +157,9 @@
 
     .input-subgroup {
       border: 1px dashed var(--border);
-      border-radius: 10px;
+      border-radius: var(--radius-input);
       padding: 0.75rem;
-      background: color-mix(in srgb, var(--card) 96%, var(--primary) 4%);
+      background: var(--subsurface-tint);
     }
 
     .input-subgroup h3 {
@@ -107,7 +178,7 @@
     select {
       width: 100%;
       padding: 0.55rem 0.65rem;
-      border-radius: 10px;
+      border-radius: var(--radius-input);
       border: 1px solid var(--border);
       font-size: 1rem;
       box-sizing: border-box;
@@ -140,8 +211,9 @@
       margin-top: 0.4rem;
       background: var(--primary);
       border: none;
-      border-radius: 10px;
+      border-radius: var(--radius-input);
       color: white;
+      color: var(--button-text);
       font-weight: 700;
       font-size: 1rem;
       padding: 0.7rem 1rem;
@@ -162,9 +234,9 @@
 
     .result-item {
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: var(--radius-input);
       padding: 0.7rem;
-      background: color-mix(in srgb, var(--card) 94%, var(--primary) 6%);
+      background: var(--subsurface-tint);
     }
 
     .result-item strong {
@@ -197,7 +269,7 @@
     }
 
     th {
-      background: color-mix(in srgb, var(--card) 84%, var(--primary) 16%);
+      background: var(--table-head);
     }
 
     @media (max-width: 600px) {
@@ -213,6 +285,10 @@
         grid-template-columns: 1fr;
       }
 
+      .theme-bar {
+        grid-template-columns: 1fr;
+      }
+
       .field-inline input[type="number"] {
         width: 100%;
       }
@@ -223,6 +299,31 @@
   <main class="card">
     <h1>Future Payment → Present Monthly Value</h1>
     <p>Estimate what a one-time future payment is worth in today's monthly-wage terms.</p>
+    <div class="theme-bar" role="group" aria-label="Theme selector">
+      <div>
+        <label for="theme">Theme</label>
+        <select id="theme">
+          <option value="default" selected>Default</option>
+          <option value="corporate">Corporate</option>
+          <option value="win98">Windows 98</option>
+          <option value="claude-cli">Claude Code CLI ASCII</option>
+        </select>
+      </div>
+    </div>
+    <pre class="ascii-banner" aria-hidden="true">
+ ██████╗██╗      █████╗ ██╗   ██╗██████╗ ███████╗
+██╔════╝██║     ██╔══██╗██║   ██║██╔══██╗██╔════╝
+██║     ██║     ███████║██║   ██║██║  ██║█████╗
+██║     ██║     ██╔══██║██║   ██║██║  ██║██╔══╝
+╚██████╗███████╗██║  ██║╚██████╔╝██████╔╝███████╗
+ ╚═════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝
+   ██████╗ ██████╗ ██████╗ ███████╗     ██████╗██╗     ██╗
+  ██╔════╝██╔═══██╗██╔══██╗██╔════╝    ██╔════╝██║     ██║
+  ██║     ██║   ██║██║  ██║█████╗      ██║     ██║     ██║
+  ██║     ██║   ██║██║  ██║██╔══╝      ██║     ██║     ██║
+  ╚██████╗╚██████╔╝██████╔╝███████╗    ╚██████╗███████╗██║
+   ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝     ╚═════╝╚══════╝╚═╝
+    </pre>
 
     <form id="calculator">
       <section class="section-group">
@@ -334,6 +435,7 @@
   </main>
 
   <script>
+    const themeEl = document.getElementById('theme');
     const form = document.getElementById('calculator');
     const currencyEl = document.getElementById('currency');
     const currentWageEl = document.getElementById('currentWage');
@@ -356,6 +458,19 @@
     const requiredRaisePercentEl = document.getElementById('requiredRaisePercent');
     const futureWageTableEl = document.getElementById('futureWageTable');
     const explanationEl = document.getElementById('explanation');
+
+    function applyTheme(theme) {
+      if (!theme || theme === 'default') {
+        document.body.removeAttribute('data-theme');
+        return;
+      }
+
+      document.body.setAttribute('data-theme', theme);
+    }
+
+    const savedTheme = localStorage.getItem('calculatorTheme') || 'default';
+    themeEl.value = savedTheme;
+    applyTheme(savedTheme);
 
     const number = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 
@@ -505,6 +620,10 @@
     }
 
     form.addEventListener('submit', calculate);
+    themeEl.addEventListener('change', () => {
+      applyTheme(themeEl.value);
+      localStorage.setItem('calculatorTheme', themeEl.value);
+    });
     currencyEl.addEventListener('change', () => form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true })));
 
     inflationEl.addEventListener('input', () => syncPair(inflationEl, inflationRangeEl));
