@@ -133,6 +133,29 @@
       color: var(--muted);
       margin-top: 0.75rem;
     }
+
+    .wage-table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 0.5rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: color-mix(in srgb, var(--card) 84%, var(--primary) 16%);
+    }
   </style>
 </head>
 <body>
@@ -208,10 +231,18 @@
     </form>
 
     <section class="results" id="results" aria-live="polite">
+      <div class="result-item"><strong>Current monthly wage:</strong> <span id="currentWageResult">—</span></div>
       <div class="result-item"><strong>Present value today:</strong> <span id="presentValue">—</span></div>
       <div class="result-item"><strong>Equivalent current monthly wages:</strong> <span id="monthlyWages">—</span></div>
       <div class="result-item"><strong>Estimated monthly wage at payout date:</strong> <span id="futureWage">—</span></div>
+      <div class="result-item"><strong>Future wage in today's value (inflation-adjusted):</strong> <span id="futureWagePresentValue">—</span></div>
       <div class="result-item"><strong>Equivalent future monthly wages:</strong> <span id="futureMonthlyWages">—</span></div>
+      <div class="result-item">
+        <strong>Future wage by period:</strong>
+        <div class="wage-table-wrap">
+          <table id="futureWageTable" aria-label="Future wage progression by period"></table>
+        </div>
+      </div>
       <p class="note" id="explanation"></p>
     </section>
   </main>
@@ -229,10 +260,13 @@
     const futurePaymentEl = document.getElementById('futurePayment');
     const futurePaymentRatioEl = document.getElementById('futurePaymentRatio');
     const futurePaymentRatioRangeEl = document.getElementById('futurePaymentRatioRange');
+    const currentWageResultEl = document.getElementById('currentWageResult');
     const presentValueEl = document.getElementById('presentValue');
     const monthlyWagesEl = document.getElementById('monthlyWages');
     const futureWageEl = document.getElementById('futureWage');
+    const futureWagePresentValueEl = document.getElementById('futureWagePresentValue');
     const futureMonthlyWagesEl = document.getElementById('futureMonthlyWages');
+    const futureWageTableEl = document.getElementById('futureWageTable');
     const explanationEl = document.getElementById('explanation');
 
     const number = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
@@ -294,12 +328,77 @@
       const presentValue = adjustedFuturePayment / inflationFactor;
       const equivalentCurrentMonthlyWages = presentValue / currentWage;
       const futureMonthlyWage = currentWage * wageGrowthFactor;
+      const futureWagePresentValue = futureMonthlyWage / inflationFactor;
       const equivalentFutureMonthlyWages = adjustedFuturePayment / futureMonthlyWage;
       const money = moneyFormatter(currency);
 
+      const periodMonths = [];
+      for (let month = 12; month <= monthsAhead; month += 12) {
+        periodMonths.push(month);
+      }
+      const leftoverMonths = monthsAhead % 12;
+      if (monthsAhead === 0) {
+        periodMonths.push(0);
+      } else if (leftoverMonths !== 0) {
+        periodMonths.push(monthsAhead);
+      }
+
+      const tableHeaderCells = periodMonths
+        .map((month) => `<th scope="col">${month} mo</th>`)
+        .join('');
+      const futureWageCells = periodMonths
+        .map((month) => {
+          const wageAtMonth = currentWage * Math.pow(1 + wageIncrease, month / 12);
+          return `<td>${money.format(wageAtMonth)}</td>`;
+        })
+        .join('');
+      const futureWagePresentValueCells = periodMonths
+        .map((month) => {
+          const wageAtMonth = currentWage * Math.pow(1 + wageIncrease, month / 12);
+          const inflationFactorAtMonth = Math.pow(1 + inflation, month / 12);
+          const wagePresentValueAtMonth = wageAtMonth / inflationFactorAtMonth;
+          return `<td>${money.format(wagePresentValueAtMonth)}</td>`;
+        })
+        .join('');
+      const payoutSpreadMonths = Math.max(monthsAhead, 1);
+      const payoutPerMonth = adjustedFuturePayment / payoutSpreadMonths;
+      const futureWageWithPayoutPresentValueCells = periodMonths
+        .map((month) => {
+          const wageAtMonth = currentWage * Math.pow(1 + wageIncrease, month / 12);
+          const inflationFactorAtMonth = Math.pow(1 + inflation, month / 12);
+          const wageWithPayoutPresentValueAtMonth = (wageAtMonth + payoutPerMonth) / inflationFactorAtMonth;
+          return `<td>${money.format(wageWithPayoutPresentValueAtMonth)}</td>`;
+        })
+        .join('');
+
+      futureWageTableEl.innerHTML = `
+        <thead>
+          <tr>
+            <th scope="col">Metric</th>
+            ${tableHeaderCells}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Future wage</th>
+            ${futureWageCells}
+          </tr>
+          <tr>
+            <th scope="row">Future wage in today's value</th>
+            ${futureWagePresentValueCells}
+          </tr>
+          <tr>
+            <th scope="row">Future wage + payout/month in today's value</th>
+            ${futureWageWithPayoutPresentValueCells}
+          </tr>
+        </tbody>
+      `;
+
+      currentWageResultEl.textContent = money.format(currentWage);
       presentValueEl.textContent = money.format(presentValue);
       monthlyWagesEl.textContent = number.format(equivalentCurrentMonthlyWages);
       futureWageEl.textContent = money.format(futureMonthlyWage);
+      futureWagePresentValueEl.textContent = money.format(futureWagePresentValue);
       futureMonthlyWagesEl.textContent = number.format(equivalentFutureMonthlyWages);
 
       explanationEl.textContent = `The calculation applies a ${number.format(futurePaymentRatio * 100)}% exit performance goal achievement factor to the future payment before discounting by inflation over ${monthsAhead} months. Monthly-wage equivalents compare this value against your current and projected wages in ${currency}.`;
