@@ -21,7 +21,6 @@
       --radius-input: 10px;
       --button-text: #ffffff;
       --font-main: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      --ascii-display: none;
     }
 
     body[data-theme="corporate"] {
@@ -69,7 +68,6 @@
       --radius-panel: 4px;
       --radius-input: 4px;
       --font-main: "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
-      --ascii-display: block;
     }
 
     body {
@@ -102,19 +100,6 @@
 
     .theme-bar label {
       margin-bottom: 0.35rem;
-    }
-
-    .ascii-banner {
-      display: var(--ascii-display);
-      margin: 0 0 1rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-panel);
-      padding: 0.7rem;
-      background: var(--subsurface-tint);
-      color: var(--primary);
-      font-size: 0.72rem;
-      line-height: 1.15;
-      overflow-x: auto;
     }
 
     h1 {
@@ -306,24 +291,10 @@
           <option value="default" selected>Default</option>
           <option value="corporate">Corporate</option>
           <option value="win98">Windows 98</option>
-          <option value="claude-cli">Claude Code CLI ASCII</option>
+          <option value="claude-cli">Claude Code CLI</option>
         </select>
       </div>
     </div>
-    <pre class="ascii-banner" aria-hidden="true">
- ██████╗██╗      █████╗ ██╗   ██╗██████╗ ███████╗
-██╔════╝██║     ██╔══██╗██║   ██║██╔══██╗██╔════╝
-██║     ██║     ███████║██║   ██║██║  ██║█████╗
-██║     ██║     ██╔══██║██║   ██║██║  ██║██╔══╝
-╚██████╗███████╗██║  ██║╚██████╔╝██████╔╝███████╗
- ╚═════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝
-   ██████╗ ██████╗ ██████╗ ███████╗     ██████╗██╗     ██╗
-  ██╔════╝██╔═══██╗██╔══██╗██╔════╝    ██╔════╝██║     ██║
-  ██║     ██║   ██║██║  ██║█████╗      ██║     ██║     ██║
-  ██║     ██║   ██║██║  ██║██╔══╝      ██║     ██║     ██║
-  ╚██████╗╚██████╔╝██████╔╝███████╗    ╚██████╗███████╗██║
-   ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝     ╚═════╝╚══════╝╚═╝
-    </pre>
 
     <form id="calculator">
       <section class="section-group">
